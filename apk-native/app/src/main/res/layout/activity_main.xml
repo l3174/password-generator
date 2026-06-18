@@ -29,15 +29,33 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <!-- Title -->
-                <TextView
-                    android:layout_width="wrap_content"
+                <!-- Title row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="密码生成器"
-                    android:textColor="@color/text_primary"
-                    android:textSize="24sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="2dp" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="2dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="密码生成器"
+                        android:textColor="@color/text_primary"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnHelp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="36dp"
+                        android:text="使用说明"
+                        android:textSize="12sp"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        app:rippleColor="@color/primary"
+                        android:textColor="@color/primary" />
+                </LinearLayout>
 
                 <View
                     android:layout_width="match_parent"
