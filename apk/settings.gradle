@@ -1,0 +1,2 @@
+rootProject.name = "密码生成器"
+include ':app'

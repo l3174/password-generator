@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>密码生成器</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Microsoft YaHei UI', 'PingFang SC', 'Helvetica Neue', sans-serif;
+    background: #f1f5f9; color: #1e293b; min-height: 100vh;
+    display: flex; align-items: center; justify-content: center; padding: 16px;
+  }
+  .card {
+    background: #fff; border-radius: 12px; padding: 32px 28px;
+    max-width: 440px; width: 100%; box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+  }
+  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+  .header h1 { font-size: 24px; font-weight: 700; }
+  .help-link { font-size: 13px; color: #4f46e5; cursor: pointer; text-decoration: underline; background: none; border: none; }
+  .divider { height: 1px; background: #e2e8f0; margin: 10px 0 20px; }
+
+  label { display: block; font-size: 13px; color: #64748b; margin: 14px 0 4px; }
+  input[type="text"], input[type="number"] {
+    width: 100%; font-size: 15px; padding: 10px 12px; border: none;
+    background: #f8fafc; border-radius: 6px; outline: none;
+    box-shadow: 0 0 0 1px #e2e8f0; transition: box-shadow .2s;
+  }
+  input:focus { box-shadow: 0 0 0 2px #4f46e5; }
+  .hint { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+
+  .options { margin: 18px 0 4px; display: flex; flex-direction: column; gap: 6px; }
+  .options label { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #1e293b; margin: 0; cursor: pointer; }
+  input[type="checkbox"] { width: 16px; height: 16px; accent-color: #4f46e5; cursor: pointer; }
+
+  .btn { width: 100%; font-size: 15px; font-weight: 700; padding: 14px; border: none;
+    border-radius: 8px; cursor: pointer; transition: background .15s; margin-top: 18px; }
+  .btn-primary { background: #4f46e5; color: #fff; }
+  .btn-primary:hover { background: #4338ca; }
+  .btn-copy { background: #eef2ff; color: #4f46e5; margin-top: 8px; padding: 10px; font-size: 13px; }
+  .btn-copy:hover { background: #dde4ff; }
+
+  .output-box { margin-top: 16px; border: 2px solid #4f46e5; border-radius: 8px; padding: 18px; text-align: center; min-height: 52px; display: flex; align-items: center; justify-content: center; }
+  .output-text { font-family: 'Consolas', 'Fira Code', monospace; font-size: 20px; font-weight: 700; color: #4f46e5; word-break: break-all; }
+  .output-placeholder { font-size: 12px; color: #94a3b8; }
+
+  /* Help modal */
+  .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
+  .modal.open { display: flex; }
+  .modal-content { background: #fff; border-radius: 12px; max-width: 520px; width: 100%; max-height: 80vh; overflow: hidden; display: flex; flex-direction: column; }
+  .modal-title { background: #4f46e5; color: #fff; padding: 16px 24px; font-size: 16px; font-weight: 700; }
+  .modal-body { padding: 20px 24px; overflow-y: auto; font-size: 13px; line-height: 1.8; color: #334155; }
+  .modal-body h3 { font-size: 14px; margin: 16px 0 6px; color: #1e293b; }
+  .modal-body p { margin: 4px 0; }
+  .modal-close { width: 100%; padding: 12px; border: none; background: #4f46e5; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .modal-close:hover { background: #4338ca; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="header">
+    <h1>密码生成器</h1>
+    <button class="help-link" onclick="openHelp()">使用说明</button>
+  </div>
+  <div class="divider"></div>
+
+  <label>输入信息</label>
+  <input type="text" id="inputStr" placeholder="如：主密码 + 网站标识">
+  <div class="hint">用于推导密码的任意字符串，如：MySecret123+github</div>
+
+  <label>密码长度</label>
+  <input type="number" id="pwdLen" value="12" min="2" max="64">
+
+  <div class="options">
+    <label><input type="checkbox" id="chkUpper"> 包含大写字母</label>
+    <label><input type="checkbox" id="chkSymbol"> 包含特殊符号</label>
+  </div>
+
+  <button class="btn btn-primary" onclick="generate()">生成密码</button>
+
+  <div class="output-box" id="outputBox">
+    <span class="output-placeholder" id="placeholder">点击「生成密码」后在此显示</span>
+    <span class="output-text" id="output" style="display:none"></span>
+  </div>
+  <button class="btn btn-copy" onclick="copyPassword()">复制到剪贴板</button>
+</div>
+
+<div class="modal" id="helpModal">
+  <div class="modal-content">
+    <div class="modal-title">使用说明</div>
+    <div class="modal-body" id="helpContent"></div>
+    <button class="modal-close" onclick="closeHelp()">关闭</button>
+  </div>
+</div>
+
+<script>
+// ── 字符集 ──
+const LOWERCASE = 'abcdefghijkmnopqrstuvwxyz';
+const UPPERCASE = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+const DIGITS = '23456789';
+const SYMBOLS = '!@#$%^&*()-_=+[]{}|;:,.<>?';
+
+// ── SHA-256 辅助 ──
+async function sha256(message) {
+  const encoder = new TextEncoder();
+  return await crypto.subtle.digest('SHA-256', encoder.encode(message));
+}
+
+function bytesToHex(bytes) {
+  return Array.from(new Uint8Array(bytes)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+// ── 字节流扩展 ──
+async function expandBytes(input, needed) {
+  let result = new Uint8Array(0);
+  let counter = 0;
+  while (result.length < needed) {
+    const hash = await sha256(input + '|' + counter);
+    const chunk = new Uint8Array(hash);
+    const tmp = new Uint8Array(result.length + chunk.length);
+    tmp.set(result); tmp.set(chunk, result.length);
+    result = tmp;
+    counter++;
+  }
+  return result;
+}
+
+// ── 生成密码 ──
+async function generate() {
+  const input = document.getElementById('inputStr').value;
+  let length = parseInt(document.getElementById('pwdLen').value) || 12;
+  const includeUpper = document.getElementById('chkUpper').checked;
+  const includeSymbol = document.getElementById('chkSymbol').checked;
+
+  if (!input) { alert('请填写输入信息'); return; }
+
+  const categories = [LOWERCASE, DIGITS];
+  if (includeUpper) categories.push(UPPERCASE);
+  if (includeSymbol) categories.push(SYMBOLS);
+
+  const fullCharset = categories.join('');
+  const catCount = categories.length;
+  if (length < catCount) length = catCount;
+
+  const raw = await expandBytes(input, length * 3);
+
+  // 锚点字符
+  const anchors = categories.map((cat, i) => cat[raw[i] % cat.length]);
+
+  // 填充字符
+  const fills = [];
+  for (let i = 0; i < length - catCount; i++) {
+    fills.push(fullCharset[raw[catCount + i] % fullCharset.length]);
+  }
+
+  const chars = [...anchors, ...fills];
+
+  // Fisher-Yates 洗牌
+  let shuffleRaw = raw.slice(length, length * 3);
+  let shuffleIdx = 0;
+  for (let i = length - 1; i > 0; i--) {
+    if (shuffleIdx >= shuffleRaw.length) {
+      shuffleRaw = new Uint8Array(await sha256(shuffleRaw.buffer));
+      shuffleIdx = 0;
+    }
+    const j = shuffleRaw[shuffleIdx] % (i + 1);
+    shuffleIdx++;
+    [chars[i], chars[j]] = [chars[j], chars[i]];
+  }
+
+  document.getElementById('placeholder').style.display = 'none';
+  const outputEl = document.getElementById('output');
+  outputEl.style.display = '';
+  outputEl.textContent = chars.join('');
+}
+
+// ── 复制 ──
+async function copyPassword() {
+  const text = document.getElementById('output').textContent;
+  if (!text) return;
+  try {
+    await navigator.clipboard.writeText(text);
+    const btn = document.querySelector('.btn-copy');
+    const orig = btn.textContent;
+    btn.textContent = '已复制!';
+    setTimeout(() => btn.textContent = orig, 1500);
+  } catch {
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+  }
+}
+
+// ── 帮助弹窗 ──
+function openHelp() {
+  document.getElementById('helpModal').classList.add('open');
+}
+function closeHelp() {
+  document.getElementById('helpModal').classList.remove('open');
+}
+document.getElementById('helpModal').addEventListener('click', function(e) {
+  if (e.target === this) closeHelp();
+});
+
+document.getElementById('helpContent').innerHTML = `
+<p>这是一个<strong>确定性密码生成器</strong>——不存储密码，而是通过加密算法从你输入的信息中派生出密码。</p>
+
+<h3>使用方法</h3>
+<p>1. 在<strong>输入信息</strong>中填入你的主密码和标识（如 MySecret123+github）</p>
+<p>2. 设置密码长度，建议 12–16 位</p>
+<p>3. 根据需要勾选「包含大写字母」和「包含特殊符号」</p>
+<p>4. 点击「生成密码」得到结果，点击「复制」即可使用</p>
+
+<h3>加密规则</h3>
+<p><strong>SHA-256 哈希</strong> — 对输入信息进行 SHA-256 哈希，相同输入永远产生相同哈希，保证同一输入 + 相同设置 = 永远一样的密码。</p>
+<p><strong>字符集映射</strong> — 将每个哈希字节（0–255）对字符集大小取模，映射到可打印字符。需要更多字符时通过追加计数器反复哈希扩展。</p>
+<p><strong>类别锚点</strong> — 勾选的每类字符各取一个"锚点"，确保结果中每类字符至少出现一次（小写字母+数字始终包含）。</p>
+<p><strong>Fisher-Yates 洗牌</strong> — 用哈希导出的序列做确定性洗牌，打散锚点位置，使密码看起来完全随机。</p>
+
+<h3>安全建议</h3>
+<p>· 输入信息中应包含足够长的主密码，仅你一人知晓</p>
+<p>· 不同网站使用不同标识（如 +github、+google）</p>
+<p>· 勿将主密码明文保存或与他人分享</p>
+`;
+</script>
+</body>
+</html>
