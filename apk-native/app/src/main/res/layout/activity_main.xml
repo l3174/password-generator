@@ -1,206 +1,185 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg"
-    android:fillViewport="true">
+    android:orientation="vertical"
+    android:background="@color/bg">
 
+    <!-- 顶部内容区 -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="false"
+        android:paddingHorizontal="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="12dp">
+
+            <!-- Title row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="密码生成器"
+                    android:textColor="@color/text_primary"
+                    android:textSize="26sp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnHelp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:text="使用说明"
+                    android:textSize="13sp"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:textColor="@color/primary" />
+            </LinearLayout>
+
+            <!-- Input -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="输入信息"
+                app:hintTextColor="@color/primary"
+                app:boxStrokeColor="@color/primary"
+                app:boxBackgroundColor="@color/input_bg"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_marginBottom="2dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/inputText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:textSize="15sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="用于推导密码的字符串，如：主密码 + 网站标识"
+                android:textSize="11sp"
+                android:textColor="@color/text_subtle"
+                android:layout_marginStart="4dp"
+                android:layout_marginBottom="14dp" />
+
+            <!-- Length -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="密码长度"
+                app:hintTextColor="@color/primary"
+                app:boxStrokeColor="@color/primary"
+                app:boxBackgroundColor="@color/input_bg"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_marginBottom="14dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/lengthText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:inputType="number"
+                    android:text="12"
+                    android:textSize="15sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Checkboxes -->
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/chkUpper"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="包含大写字母"
+                android:textSize="14sp"
+                android:textColor="@color/text_primary"
+                android:paddingVertical="2dp" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/chkSymbol"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="包含特殊符号"
+                android:textSize="14sp"
+                android:textColor="@color/text_primary"
+                android:paddingVertical="2dp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- 底部操作区 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:gravity="center_horizontal"
-        android:padding="16dp">
+        android:paddingHorizontal="20dp"
+        android:paddingBottom="16dp"
+        android:background="@color/bg">
 
-        <!-- Card -->
+        <!-- Generate button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnGenerate"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="生成密码"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:cornerRadius="14dp"
+            app:backgroundTint="@color/primary"
+            android:textColor="@color/surface"
+            android:layout_marginBottom="14dp" />
+
+        <!-- Output box -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="24dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
-            app:cardBackgroundColor="@color/surface"
-            app:contentPadding="24dp">
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="@color/output_bg">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <!-- Title row -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="2dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="密码生成器"
-                        android:textColor="@color/text_primary"
-                        android:textSize="24sp"
-                        android:textStyle="bold" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnHelp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="36dp"
-                        android:text="使用说明"
-                        android:textSize="12sp"
-                        style="@style/Widget.Material3.Button.TextButton"
-                        app:rippleColor="@color/primary"
-                        android:textColor="@color/primary" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/divider"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="16dp" />
-
-                <!-- Input -->
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="输入信息"
-                    app:hintTextColor="@color/primary"
-                    app:boxStrokeColor="@color/primary"
-                    app:boxBackgroundColor="@color/input_bg"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                    android:layout_marginBottom="4dp">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/inputText"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:singleLine="true"
-                        android:textSize="15sp" />
-                </com.google.android.material.textfield.TextInputLayout>
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="16dp">
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="用于推导密码的任意字符串，如：主密码 + 网站标识"
-                    android:textSize="11sp"
-                    android:textColor="@color/text_subtle"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginBottom="16dp" />
-
-                <!-- Length -->
-                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/outputText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="密码长度"
-                    app:hintTextColor="@color/primary"
-                    app:boxStrokeColor="@color/primary"
-                    app:boxBackgroundColor="@color/input_bg"
-                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                    android:layout_marginBottom="16dp">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/lengthText"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:singleLine="true"
-                        android:inputType="number"
-                        android:text="12"
-                        android:textSize="15sp" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <!-- Checkboxes -->
-                <com.google.android.material.checkbox.MaterialCheckBox
-                    android:id="@+id/chkUpper"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="包含大写字母"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_primary"
-                    android:paddingVertical="4dp"
-                    android:layout_marginBottom="2dp" />
-
-                <com.google.android.material.checkbox.MaterialCheckBox
-                    android:id="@+id/chkSymbol"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="包含特殊符号"
-                    android:textSize="14sp"
-                    android:textColor="@color/text_primary"
-                    android:paddingVertical="4dp"
-                    android:layout_marginBottom="20dp" />
-
-                <!-- Generate button -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnGenerate"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="生成密码"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    app:cornerRadius="12dp"
-                    app:backgroundTint="@color/primary"
-                    android:textColor="@color/surface"
-                    android:layout_marginBottom="20dp" />
-
-                <!-- Output label -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="生成的密码"
+                    android:text="点击上方按钮生成密码"
                     android:textSize="13sp"
                     android:textColor="@color/text_subtle"
-                    android:layout_marginBottom="6dp" />
+                    android:gravity="center"
+                    android:fontFamily="monospace"
+                    android:minHeight="24dp" />
 
-                <!-- Output box -->
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:cardCornerRadius="10dp"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/primary"
-                    app:strokeWidth="2dp"
-                    app:cardBackgroundColor="@color/output_bg"
-                    app:contentPadding="16dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:gravity="center">
-
-                        <TextView
-                            android:id="@+id/outputText"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="点击「生成密码」后在此显示"
-                            android:textSize="13sp"
-                            android:textColor="@color/text_subtle"
-                            android:gravity="center"
-                            android:fontFamily="monospace"
-                            android:minHeight="32dp"
-                            android:paddingVertical="8dp" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnCopy"
-                            android:layout_width="wrap_content"
-                            android:layout_height="40dp"
-                            android:text="复制到剪贴板"
-                            android:textSize="13sp"
-                            app:cornerRadius="8dp"
-                            app:backgroundTint="@color/primary"
-                            android:textColor="@color/surface"
-                            android:visibility="gone"
-                            android:layout_marginTop="4dp" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCopy"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:text="复制到剪贴板"
+                    android:textSize="13sp"
+                    app:cornerRadius="8dp"
+                    app:backgroundTint="@color/primary"
+                    android:textColor="@color/surface"
+                    android:visibility="gone"
+                    android:layout_marginTop="8dp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
-</ScrollView>
+
+</LinearLayout>
