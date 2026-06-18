@@ -4,3 +4,5 @@ build/
 dist/
 *.spec
 release/密码生成器.exe
+apk-native/app/build/
+apk-native/.gradle/
