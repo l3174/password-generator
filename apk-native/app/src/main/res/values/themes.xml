@@ -3,6 +3,7 @@
     <style name="Theme.PwdGen" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorOnPrimary">@color/surface</item>
+        <item name="android:windowBackground">@color/bg</item>
         <item name="android:statusBarColor">@color/bg</item>
         <item name="android:navigationBarColor">@color/surface</item>
         <item name="android:windowLightStatusBar">true</item>

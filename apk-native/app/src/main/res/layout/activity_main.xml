@@ -45,6 +45,16 @@
                     android:textSize="13sp"
                     style="@style/Widget.Material3.Button.TextButton"
                     android:textColor="@color/primary" />
+
+                <ImageButton
+                    android:id="@+id/btnGitHub"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:src="@drawable/ic_github"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="GitHub"
+                    android:scaleType="centerInside"
+                    android:layout_marginStart="4dp" />
             </LinearLayout>
 
             <!-- Input -->

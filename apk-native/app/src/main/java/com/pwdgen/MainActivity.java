@@ -4,10 +4,11 @@ import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.text.SpannableString;
-import android.text.style.BulletSpan;
 import android.view.View;
+import android.view.Window;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -16,7 +17,9 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import com.pwdgen.app.R;
 
@@ -76,8 +79,19 @@ public class MainActivity extends AppCompatActivity {
             btnCopy.setVisibility(View.VISIBLE);
         });
 
+        // Status bar: light background -> dark icons
+        Window window = getWindow();
+        WindowCompat.getInsetsController(window, window.getDecorView())
+            .setAppearanceLightStatusBars(true);
+
         // Help button
         findViewById(R.id.btnHelp).setOnClickListener(v -> showHelp());
+
+        // GitHub button
+        findViewById(R.id.btnGitHub).setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/l3174"));
+            startActivity(intent);
+        });
 
         // Copy button
         btnCopy.setOnClickListener(v -> {
