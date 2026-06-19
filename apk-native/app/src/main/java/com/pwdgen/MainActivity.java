@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText lengthText;
     private CheckBox chkUpper;
     private CheckBox chkSymbol;
+    private CheckBox chkLegacy;
     private TextView outputText;
     private View btnCopy;
 
@@ -50,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
         lengthText = findViewById(R.id.lengthText);
         chkUpper = findViewById(R.id.chkUpper);
         chkSymbol = findViewById(R.id.chkSymbol);
+        chkLegacy = findViewById(R.id.chkLegacy);
         outputText = findViewById(R.id.outputText);
         btnCopy = findViewById(R.id.btnCopy);
 
@@ -65,13 +67,20 @@ public class MainActivity extends AppCompatActivity {
             try {
                 length = Integer.parseInt(lengthText.getText().toString().trim());
             } catch (NumberFormatException e) {
-                length = 12;
-                lengthText.setText("12");
+                length = 15;
+                lengthText.setText("15");
             }
 
-            String password = PasswordGenerator.generate(
-                input, length, chkUpper.isChecked(), chkSymbol.isChecked()
-            );
+            String password;
+            if (chkLegacy.isChecked()) {
+                password = PasswordGenerator.generateLegacy(
+                    input, length, chkUpper.isChecked(), chkSymbol.isChecked()
+                );
+            } else {
+                password = PasswordGenerator.generate(
+                    input, length, chkUpper.isChecked(), chkSymbol.isChecked()
+                );
+            }
 
             outputText.setText(password);
             outputText.setTextColor(getColor(R.color.text_primary));

@@ -102,7 +102,7 @@
                     android:layout_height="wrap_content"
                     android:singleLine="true"
                     android:inputType="number"
-                    android:text="12"
+                    android:text="15"
                     android:textSize="15sp" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -123,6 +123,15 @@
                 android:text="包含特殊符号"
                 android:textSize="14sp"
                 android:textColor="@color/text_primary"
+                android:paddingVertical="2dp" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/chkLegacy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="传统模式（hex 直取）"
+                android:textSize="14sp"
+                android:textColor="@color/text_subtle"
                 android:paddingVertical="2dp" />
 
         </LinearLayout>

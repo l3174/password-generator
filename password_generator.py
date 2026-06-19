@@ -30,6 +30,36 @@ def _expand_bytes(input_string, needed_bytes):
         counter += 1
     return bytes(result)
 
+def generate_legacy(input_string, password_length, use_upper, use_symbol):
+    hex_str = hashlib.sha256(input_string.encode('utf-8')).hexdigest()
+    if password_length > len(hex_str):
+        counter = 0
+        while len(hex_str) < password_length:
+            hex_str += hashlib.sha256(f"{input_string}|{counter}".encode('utf-8')).hexdigest()
+            counter += 1
+    password = list(hex_str[:password_length])
+
+    if use_upper and use_symbol:
+        for i, ch in enumerate(password):
+            if ch.isalpha():
+                password[i] = ch.upper()
+                password.insert(i + 1, ',')
+                password = password[:password_length]
+                break
+    elif use_upper:
+        for i, ch in enumerate(password):
+            if ch.isalpha():
+                password[i] = ch.upper()
+                break
+    elif use_symbol:
+        for i, ch in enumerate(password):
+            if ch.isalpha():
+                password.insert(i + 1, ',')
+                password = password[:password_length]
+                break
+
+    return ''.join(password)
+
 def generate_password(input_string, password_length):
     categories = [LOWERCASE, DIGITS]
     if uppercase_var.get():
@@ -72,10 +102,16 @@ def on_generate():
     try:
         password_length = int(length_text.get())
     except ValueError:
-        password_length = 12
+        password_length = 15
         length_text.delete(0, tk.END)
-        length_text.insert(0, '12')
-    generated_password = generate_password(input_string, password_length)
+        length_text.insert(0, '15')
+    if legacy_var.get():
+        generated_password = generate_legacy(
+            input_string, password_length,
+            uppercase_var.get(), symbols_var.get()
+        )
+    else:
+        generated_password = generate_password(input_string, password_length)
     password_output.config(text=generated_password)
 
 def on_copy():
@@ -233,7 +269,7 @@ tk.Label(card, text="用于推导密码的任意字符串，如：主密码 + �
          font=('Microsoft YaHei UI', 8), bg=CARD, fg=SUBTLE, anchor=tk.W).pack(fill=tk.X, padx=26, pady=(2, 0))
 
 make_label(card, "密码长度")
-length_text, _ = make_entry(card, '12')
+length_text, _ = make_entry(card, '15')
 
 # ── 选项 ──────────────────────────────────────────────
 opt_frame = tk.Frame(card, bg=CARD)
@@ -250,6 +286,12 @@ symbols_cb = tk.Checkbutton(opt_frame, text="包含特殊符号", variable=symbo
                             font=base_font, bg=CARD, fg=TEXT, activebackground=CARD,
                             selectcolor=CARD, cursor='hand2')
 symbols_cb.pack(anchor=tk.W, padx=4, pady=2)
+
+legacy_var = tk.BooleanVar()
+legacy_cb = tk.Checkbutton(opt_frame, text="传统模式（hex 直取）", variable=legacy_var,
+                           font=base_font, bg=CARD, fg=SUBTLE, activebackground=CARD,
+                           selectcolor=CARD, cursor='hand2')
+legacy_cb.pack(anchor=tk.W, padx=4, pady=2)
 
 # ── 按钮行 ────────────────────────────────────────────
 btn_frame = tk.Frame(card, bg=CARD)

@@ -69,11 +69,12 @@
   <div class="hint">用于推导密码的任意字符串，如：MySecret123+github</div>
 
   <label>密码长度</label>
-  <input type="number" id="pwdLen" value="12" min="2" max="64">
+  <input type="number" id="pwdLen" value="15" min="2" max="64">
 
   <div class="options">
     <label><input type="checkbox" id="chkUpper"> 包含大写字母</label>
     <label><input type="checkbox" id="chkSymbol"> 包含特殊符号</label>
+    <label><input type="checkbox" id="chkLegacy"> <span style="color:#94a3b8">传统模式（hex 直取）</span></label>
   </div>
 
   <button class="btn btn-primary" onclick="generate()">生成密码</button>
@@ -128,50 +129,91 @@ async function expandBytes(input, needed) {
 // ── 生成密码 ──
 async function generate() {
   const input = document.getElementById('inputStr').value;
-  let length = parseInt(document.getElementById('pwdLen').value) || 12;
+  let length = parseInt(document.getElementById('pwdLen').value) || 15;
   const includeUpper = document.getElementById('chkUpper').checked;
   const includeSymbol = document.getElementById('chkSymbol').checked;
+  const legacy = document.getElementById('chkLegacy').checked;
 
   if (!input) { alert('请填写输入信息'); return; }
 
-  const categories = [LOWERCASE, DIGITS];
-  if (includeUpper) categories.push(UPPERCASE);
-  if (includeSymbol) categories.push(SYMBOLS);
+  let result;
 
-  const fullCharset = categories.join('');
-  const catCount = categories.length;
-  if (length < catCount) length = catCount;
-
-  const raw = await expandBytes(input, length * 3);
-
-  // 锚点字符
-  const anchors = categories.map((cat, i) => cat[raw[i] % cat.length]);
-
-  // 填充字符
-  const fills = [];
-  for (let i = 0; i < length - catCount; i++) {
-    fills.push(fullCharset[raw[catCount + i] % fullCharset.length]);
-  }
-
-  const chars = [...anchors, ...fills];
-
-  // Fisher-Yates 洗牌
-  let shuffleRaw = raw.slice(length, length * 3);
-  let shuffleIdx = 0;
-  for (let i = length - 1; i > 0; i--) {
-    if (shuffleIdx >= shuffleRaw.length) {
-      shuffleRaw = new Uint8Array(await sha256(shuffleRaw.buffer));
-      shuffleIdx = 0;
+  if (legacy) {
+    // Legacy mode: hex digest direct
+    const hash = await sha256(input);
+    let hex = bytesToHex(new Uint8Array(hash));
+    if (length > hex.length) {
+      let counter = 0;
+      while (hex.length < length) {
+        const h = await sha256(input + '|' + counter);
+        hex += bytesToHex(new Uint8Array(h));
+        counter++;
+      }
     }
-    const j = shuffleRaw[shuffleIdx] % (i + 1);
-    shuffleIdx++;
-    [chars[i], chars[j]] = [chars[j], chars[i]];
+    result = hex.substring(0, length);
+
+    if (includeUpper && includeSymbol) {
+      for (let i = 0; i < result.length; i++) {
+        if (/[a-zA-Z]/.test(result[i])) {
+          result = result.substring(0, i) + result[i].toUpperCase() + ',' + result.substring(i + 1);
+          result = result.substring(0, length);
+          break;
+        }
+      }
+    } else if (includeUpper) {
+      for (let i = 0; i < result.length; i++) {
+        if (/[a-zA-Z]/.test(result[i])) {
+          result = result.substring(0, i) + result[i].toUpperCase() + result.substring(i + 1);
+          break;
+        }
+      }
+    } else if (includeSymbol) {
+      for (let i = 0; i < result.length; i++) {
+        if (/[a-zA-Z]/.test(result[i])) {
+          result = result.substring(0, i + 1) + ',' + result.substring(i + 1);
+          result = result.substring(0, length);
+          break;
+        }
+      }
+    }
+  } else {
+    const categories = [LOWERCASE, DIGITS];
+    if (includeUpper) categories.push(UPPERCASE);
+    if (includeSymbol) categories.push(SYMBOLS);
+
+    const fullCharset = categories.join('');
+    const catCount = categories.length;
+    if (length < catCount) length = catCount;
+
+    const raw = await expandBytes(input, length * 3);
+
+    const anchors = categories.map((cat, i) => cat[raw[i] % cat.length]);
+
+    const fills = [];
+    for (let i = 0; i < length - catCount; i++) {
+      fills.push(fullCharset[raw[catCount + i] % fullCharset.length]);
+    }
+
+    const chars = [...anchors, ...fills];
+
+    let shuffleRaw = raw.slice(length, length * 3);
+    let shuffleIdx = 0;
+    for (let i = length - 1; i > 0; i--) {
+      if (shuffleIdx >= shuffleRaw.length) {
+        shuffleRaw = new Uint8Array(await sha256(shuffleRaw.buffer));
+        shuffleIdx = 0;
+      }
+      const j = shuffleRaw[shuffleIdx] % (i + 1);
+      shuffleIdx++;
+      [chars[i], chars[j]] = [chars[j], chars[i]];
+    }
+    result = chars.join('');
   }
 
   document.getElementById('placeholder').style.display = 'none';
   const outputEl = document.getElementById('output');
   outputEl.style.display = '';
-  outputEl.textContent = chars.join('');
+  outputEl.textContent = result;
 }
 
 // ── 复制 ──

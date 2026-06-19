@@ -13,6 +13,47 @@ public class PasswordGenerator {
     public static final String DIGITS = "23456789";
     public static final String SYMBOLS = "!@#$%^&*()-_=+[]{}|;:,.<>?";
 
+    public static String generateLegacy(String input, int length, boolean includeUpper, boolean includeSymbols) {
+        String hex = sha256Hex(input.getBytes(StandardCharsets.UTF_8));
+        if (length > hex.length()) {
+            StringBuilder sb = new StringBuilder();
+            int counter = 0;
+            while (sb.length() < length) {
+                sb.append(sha256Hex((input + "|" + counter).getBytes(StandardCharsets.UTF_8)));
+                counter++;
+            }
+            hex = sb.toString();
+        }
+        StringBuilder password = new StringBuilder(hex.substring(0, length));
+
+        if (includeUpper && includeSymbols) {
+            for (int i = 0; i < password.length(); i++) {
+                if (Character.isLetter(password.charAt(i))) {
+                    password.setCharAt(i, Character.toUpperCase(password.charAt(i)));
+                    password.insert(i + 1, ',');
+                    password.setLength(length);
+                    break;
+                }
+            }
+        } else if (includeUpper) {
+            for (int i = 0; i < password.length(); i++) {
+                if (Character.isLetter(password.charAt(i))) {
+                    password.setCharAt(i, Character.toUpperCase(password.charAt(i)));
+                    break;
+                }
+            }
+        } else if (includeSymbols) {
+            for (int i = 0; i < password.length(); i++) {
+                if (Character.isLetter(password.charAt(i))) {
+                    password.insert(i + 1, ',');
+                    password.setLength(length);
+                    break;
+                }
+            }
+        }
+        return password.toString();
+    }
+
     public static String generate(String input, int length, boolean includeUpper, boolean includeSymbols) {
         List<String> categories = new ArrayList<>();
         categories.add(LOWERCASE);
@@ -76,6 +117,18 @@ public class PasswordGenerator {
             counter++;
         }
         return result;
+    }
+
+    private static String sha256Hex(byte[] input) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hash = md.digest(input);
+            StringBuilder hex = new StringBuilder();
+            for (byte b : hash) hex.append(String.format("%02x", b));
+            return hex.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static byte[] sha256Bytes(byte[] input) {
