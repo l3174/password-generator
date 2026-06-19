@@ -20,7 +20,9 @@
 
 ### 网页版（全平台）
 
-直接用浏览器打开 `index.html`，无需安装任何东西。手机、平板、电脑都能用。
+在线使用：**[l3174.github.io/password-generator](https://l3174.github.io/password-generator/)**
+
+或下载 `index.html` 离线打开。
 
 ### Python 版
 
